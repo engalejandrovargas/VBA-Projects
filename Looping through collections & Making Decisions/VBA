@@ -126,3 +126,21 @@ Sub Unhide_All()
     
     Next sh
 End Sub
+
+' Procedure to count formulas in your worksheet
+
+Sub Count_formula()
+
+Dim cell As Range
+Dim Countformula As Long
+
+    For Each cell In ActiveSheet.UsedRange
+        If cell.HasFormula Then
+            Countformula = Countformula + 1
+        End If
+    Next cell
+    Range("B6").Value = Countformula
+
+End Sub
+
+
