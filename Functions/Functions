@@ -1,0 +1,115 @@
+Option Explicit
+
+
+Sub VBA_Excel_Functions()
+    With shVEF
+         'get data in B3
+        .Range("B3").Value = VBA.DateTime.Date
+        'change to case specified in A6 to A9
+        .Range("B6").Value = VBA.UCase(.Range("A6").Value)
+        .Range("B7").Value = VBA.LCase(.Range("A7").Value)
+        .Range("B8").Value = VBA.StrConv(.Range("A8").Value, vbProperCase)
+        .Range("B9").Value = Excel.Application.WorksheetFunction.Proper(.Range("A9").Value)
+         'get max of data set in cell B11
+        Dim myRange As Range
+        Set myRange = .Range("A15").CurrentRegion
+        .Range("B11").Value = Excel.WorksheetFunction.Max(myRange)
+
+    End With
+End Sub
+
+
+Sub VBA_Functions()
+     'Working with Dates & months
+    Range("B3").Value = VBA.Month(VBA.Date)
+    Range("B4").Value = VBA.MonthName(VBA.Month(VBA.Date))
+    Range("C5").Value = VBA.MonthName(Month(Date), True)
+    'Check if cells are empty
+    'formula cells are not empty even if they return ""
+    Range("B9").Value = VBA.IsEmpty(Range("A9"))
+    Range("B10").Value = VBA.IsEmpty(Range("A10"))
+    Range("B11").Value = VBA.IsEmpty(Range("A11"))
+    Debug.Print TypeName(Range("B9").Value)
+    Debug.Print TypeName(Range("B4").Value)
+End Sub
+
+Sub Simple_MsgBox()
+        
+        'for tab msgbox
+        
+    'VBA.Interaction.MsgBox "Hello " & Excel.Application.UserName, , "Welcome!"
+    MsgBox Prompt:="Hello " & Excel.Application.UserName & "." & VBA.Constants.vbNewLine & "Thanks for stopping by.", _
+    Title:="Welcome!"
+End Sub
+
+Sub Yes_No_MsgBox()
+    'for tab Msgbox
+    Dim Answer As VbMsgBoxResult 'vbmsgbox result is actually an integer number that was given this constant name
+    Answer = MsgBox("Are you sure about this?", vbYesNo + vbQuestion + vbDefaultButton2, "Clear cells")
+        If Answer = vbYes Then
+            Range("A7:B9").Clear
+        Else
+            Exit Sub
+        End If
+
+    'Debug.Print Answer
+End Sub
+
+
+
+Sub VBA_Simple_InputBox()
+    'simple input box puts a subheader for tab inputbox_vba
+    
+    Dim myInp As String
+    myInp = VBA.InputBox("Please input subtitle", "Subtitle please...")
+    If myInp = "" Then Exit Sub
+    Range("A2").Value = Excel.WorksheetFunction.Proper(myInp)
+    
+End Sub
+
+
+
+Sub VBA_InputBox()
+
+    'for tab Inputbox_VBA - inputs name in the last empty cell
+    Dim CName As String
+    Dim NextRow As Long
+    CName = VBA.InputBox("Please input new Customer Name", "Customer Master")
+    NextRow = Cells(Rows.Count, 1).End(xlUp).Row + 1
+    'write back to sheet in proper format
+    Range("A" & NextRow).Value = Excel.WorksheetFunction.Proper(CName)
+
+End Sub
+
+Sub Excel_InputBox()
+ 'for tab InputBox_Excel
+    Dim CName As String
+    Dim NextRow As Long
+    Dim CAmount As Long
+    
+    CName = VBA.InputBox("Please input new Customer Name", "Customer Master")
+    NextRow = Cells(Rows.Count, 1).End(xlUp).Row + 1
+    'write back to sheet in proper format
+    Range("A" & NextRow).Value = Excel.WorksheetFunction.Proper(CName)
+    CAmount = Excel.Application.InputBox(Prompt:="Please Input Amount", Title:="Amount", Type:=1)
+    Cells(NextRow, 2).Value = CAmount
+    
+End Sub
+
+
+Sub Excel_InputBox_Range()
+'for tab InputBox_Excel
+    Dim myRange As Range
+    Dim cellBlank As Long, cellNum As Long, cellOther As Long
+    
+    On Error GoTo Leave 'in case the user clicks on cancel
+    Set myRange = Application.InputBox("Count the number of cells", "Checking Cells...", , , , , , 8)
+    cellBlank = Excel.WorksheetFunction.CountBlank(myRange)
+    cellNum = Excel.WorksheetFunction.Count(myRange)
+    cellOther = Excel.WorksheetFunction.CountA(myRange) - cellNum
+    'message box to inform
+    MsgBox cellBlank & " cells are blank." & vbNewLine _
+    & cellNum & " cells have numbers." & vbNewLine _
+    & cellOther & " cells are non-numeric."
+Leave:
+End Sub
