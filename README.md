@@ -10,3 +10,4 @@ This Repository is the solution to the course in Udemy: Unlock Excel VBA and Mac
 | 19.03.2021  | Built in Functions | VBA Functions, Message boxes, Input boxes
 | 22.03.2021  | Error Handling and Debugging | Debugging Options (Watch, immediate window), Error handling (different methods).
 | 23.03.2021  | Automatic Table of Content | VBA code to hyperlinks sheets to one page of content
+| 25.03.2021  | Looping Controlling the flow of the code | For next, do until, do while, timer and speech
