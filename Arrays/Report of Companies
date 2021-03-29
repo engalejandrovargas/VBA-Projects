@@ -1,0 +1,26 @@
+Option Explicit
+
+Sub Manager_Report()
+
+    Dim CompInfo(1 To 8, 1 To 2) As String
+    Dim r As Byte, c As Byte
+    Const StartRow As Long = 6
+    Dim NewBook As Workbook
+    Dim ShNew As Worksheet
+    
+    For r = 1 To 8
+        For c = 1 To 2
+            CompInfo(r, c) = Cells(r + StartRow, c).Value
+        Next c
+    Next r
+    
+    Set NewBook = Workbooks.Add
+    'reuse r for worksheets
+    For r = 1 To 8
+        Set ShNew = NewBook.Worksheets.Add
+        ShNew.Name = CompInfo(r, 1)
+        ShNew.Range("A1").Value = CompInfo(r, 1)
+        ShNew.Range("A2").Value = CompInfo(r, 2)
+        
+    Next r
+End Sub
