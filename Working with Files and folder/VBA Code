@@ -1,0 +1,169 @@
+Option Explicit
+
+Sub File_Exists()
+    Dim FileName As String
+    'Update the path to a valid path on your PC
+    FileName = VBA.FileSystem.Dir("C:\Users\LG\Desktop\VBA\S2_*start.xls?")
+    If FileName = VBA.Constants.vbNullString Then
+        MsgBox "file does not exist."
+    Else
+        'Update the path to a valid path on your PC
+        Workbooks.Open "C:\Users\LG\Desktop\VBA\" & FileName
+        
+    End If
+End Sub
+
+
+Sub Path_Exists()
+    Dim Path As String
+    Dim Folder As String
+    Dim Answer As VbMsgBoxResult
+    'Update the path to a valid path on your PC
+    Path = "C:\Users\LG\Desktop\VBA\S12"
+    Folder = Dir(Path, vbDirectory)
+    
+    If Folder = vbNullString Then
+        Answer = MsgBox("Path does not exist. Would you like to create it?", vbYesNo, "Create Path?")
+        Select Case Answer
+            Case vbYes
+                VBA.FileSystem.MkDir (Path)
+            Case Else
+                Exit Sub
+        End Select
+    Else
+        MsgBox "Folder exists."
+        
+    End If
+End Sub
+
+
+Sub Get_Data_From_File()
+
+     'Note: In the Regional Project that's coming up we learn how to import data from multiple Excel workbooks
+    ' Also see BONUS sub procedure below (Bonus_Get_Data_From_File_InputBox()) that expands on this by inlcuding an input box
+    Dim FileToOpen As Variant
+    Dim OpenBook As Workbook
+    Application.ScreenUpdating = False
+    FileToOpen = Application.GetOpenFilename(Title:="Browse for your File & Import Range", FileFilter:="Excel Files (*.xls*),*xls*")
+    If FileToOpen <> False Then
+        Set OpenBook = Application.Workbooks.Open(FileToOpen)
+         'copy data from A1 to E20 from first sheet
+        OpenBook.Sheets(1).Range("A1:E20").Copy
+        ThisWorkbook.Worksheets("SelectFile").Range("A10").PasteSpecial xlPasteValues
+        OpenBook.Close False
+        
+    End If
+    Application.ScreenUpdating = True
+End Sub
+
+
+Sub Loop_Inside_Folder()
+
+    Dim FileDir As String
+    Dim FiletoList As String
+    Dim OpenBook As Workbook
+    'Retrieve Target Folder Path From User
+    With Application.FileDialog(msoFileDialogFolderPicker)
+        .Title = "Please select a folder"
+        .ButtonName = "Pick Folder"
+        'Cancel has show value of 0 and -1 means something was selected
+        If .Show = 0 Then
+            MsgBox "Nothing was selected"
+            Exit Sub
+        Else
+            'Dir finds the first file in the folder
+            FileDir = .SelectedItems(1) & "\"
+
+        End If
+    End With
+    'get first matching file name - the below shows you how to get specifc
+    'FiletoList = Dir(FileDir & "Test_*xls*")
+    FiletoList = Dir(FileDir & "*xls*")
+    Do Until FiletoList = ""
+        MsgBox FiletoList
+        
+     '   DoEvents 'allows windows to catchup
+     '   Set OpenBook = Workbooks.Open(FileDir & FiletoList)
+      '  OpenBook.Sheets(1).Copy before:=ThisWorkbook.Sheets(1)
+
+        'This command moves on the next file - don't forget this otherwise you get an endless loop
+        FiletoList = Dir
+
+    Loop
+     
+End Sub
+Sub Save_as_CSV()
+    
+    Dim NewBook As Workbook
+    Dim FileName As String
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+    
+    FileName = Application.ThisWorkbook.Path & "\TestTextCSV.csv"
+    Set NewBook = Workbooks.Add
+    ShCSV.Copy before:=NewBook.Sheets(1)
+    With NewBook
+        .Sheets(1).Rows("1:3").Delete
+        .SaveAs FileName:=FileName, FileFormat:=Excel.xlCSV
+        .Close
+        
+    End With
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+    MsgBox "Your CSV file was exported to the same directory as this workbook.", vbInformation
+    
+End Sub
+
+Sub Simple_TextFile()
+    Dim FileName As String
+    FileName = ThisWorkbook.Path & "\TestTextFile.csv"
+    Open FileName For Output As #1
+    Print #1, "Print line 1"
+    Write #1, "Print line 2"
+    Print #1, 1
+    Write #1, 2
+    Print #1, Range("A1").Value
+    Write #1, Range("A1").Value
+    
+    Close #1
+End Sub
+
+Sub Bonus_Get_Data_From_File_InputBox()
+    
+    Dim FileToOpen As Variant
+    Dim OpenBook As Workbook
+    Dim ShName As String
+    Dim Sh As Worksheet
+    On Error GoTo Handle:
+    
+    FileToOpen = Application.GetOpenFilename(Title:="Browse for your File & Import Range", FileFilter:="Excel Files (*.xls*),*.xls*")
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+    
+    If FileToOpen <> False Then
+        Set OpenBook = Application.Workbooks.Open(FileToOpen)
+        ShName = Application.InputBox("Enter the sheet name to copy", "Enter the sheet name to copy")
+        For Each Sh In OpenBook.Worksheets
+            If UCase(Sh.Name) Like "*" & UCase(ShName) & "*" Then
+                ShName = Sh.Name
+            End If
+        Next Sh
+
+        'copy data from the specified sheet to this workbook - updae range as you see fit
+        OpenBook.Sheets(ShName).Range("A1:CF1100").Copy
+        ThisWorkbook.ActiveSheet.Range("A10").PasteSpecial xlPasteValues
+        OpenBook.Close False
+    End If
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+    Exit Sub
+Handle:
+    If Err.Number = 9 Then
+        MsgBox "The sheet name does not exist. Please check spelling"
+    Else
+        MsgBox "An error has occurred."
+    End If
+    OpenBook.Close False
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+End Sub
