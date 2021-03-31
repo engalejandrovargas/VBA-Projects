@@ -12,3 +12,4 @@ This Repository is the solution to the course in Udemy: Unlock Excel VBA and Mac
 | 23.03.2021  | Automatic Table of Content | VBA code to hyperlinks sheets to one page of content
 | 25.03.2021  | Looping Controlling the flow of the code | For next, do until, do while, timer and speech
 | 27.03.2021  | Working with arrays | One dimension, multi dimensions, report of companies in New workbook
+| 29.03.2021  | Working with files and Folders | Loop inside a folder, print, export, write
