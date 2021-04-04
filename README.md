@@ -13,3 +13,4 @@ This Repository is the solution to the course in Udemy: Unlock Excel VBA and Mac
 | 25.03.2021  | Looping Controlling the flow of the code | For next, do until, do while, timer and speech
 | 27.03.2021  | Working with arrays | One dimension, multi dimensions, report of companies in New workbook
 | 29.03.2021  | Working with files and Folders | Loop inside a folder, print, export, write
+| 04.04.2021  | Formulas and Pivot tables | Formulas in VBA, Pivot tables in VBA
