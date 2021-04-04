@@ -1,0 +1,58 @@
+
+Sub Excel_Formula()
+    Dim LastRow As Long
+    Dim r As Long
+    LastRow = Range("A" & Rows.Count).End(xlUp).Row
+    
+    Range("F9").FormulaR1C1 = "=IF(VALUE(LEFT(RC[-4],1))=8,RC[-1]-50,"""")"
+    Range("F9").AutoFill Destination:=Range("F9:F" & LastRow)
+    Application.Calculate
+    'reset color
+    Range("A9", "E" & LastRow).Interior.Color = xlNone
+    'change color if value in F is <=100
+    For r = 9 To LastRow
+        If Range("F" & r).Value <= 100 Then
+            Range("A" & r, "E" & r).Interior.Color = VBA.ColorConstants.vbRed
+            
+        End If
+    Next r
+End Sub
+
+Sub Macro1()
+'
+' Macro1 Macro
+
+    ActiveCell.FormulaR1C1 = "=LEFT(RC[-4],1)"
+    ActiveCell.FormulaR1C1 = "=IF(VALUE(LEFT(RC[-4],1))=8,RC[-1]-50,"""")"
+    Selection.AutoFill Destination:=Range("F9:F85")
+    Range("F9:F85").Select
+    ActiveWindow.SmallScroll Down:=33
+    Range("F45").Select
+    ActiveWindow.SmallScroll Down:=-33
+    Range("F9").Select
+End Sub
+Sub Working_with_Tables()
+    'using table excel references
+   ' Debug.Print Range("comptable[quantity]").Address
+'    Debug.Print Range("comptable").Address
+    'using listobject
+    Dim myTable As ListObject
+    Set myTable = shTable.ListObjects("comptable")
+    'address of table
+'    Debug.Print myTable.Range.Address
+'    Debug.Print myTable.DataBodyRange.Address
+    'number of rows in the table
+'    Debug.Print myTable.Range.Rows.Count
+'    Debug.Print myTable.DataBodyRange.Rows.Count
+    'refer to specific columns
+'    Debug.Print myTable.ListColumns("quantity").DataBodyRange.Address
+'    Debug.Print myTable.ListRows(5).Range.Address
+    'refer to the header
+ '   Debug.Print myTable.HeaderRowRange.Address
+    'insert a new row at the end of the table
+   ' myTable.ListRows.Add 2
+   ' myTable.ListColumns.Add
+   ' myTable.ListColumns(myTable.ListColumns.Count).Name = "New"
+    myTable.DataBodyRange(1, 6).FormulaR1C1 = "=IF(VALUE(LEFT(RC[-4],1))=8,RC[-1]-50,"""")"
+    
+End Sub
