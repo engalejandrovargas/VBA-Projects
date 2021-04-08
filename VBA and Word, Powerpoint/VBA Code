@@ -1,0 +1,168 @@
+Option Explicit
+
+Sub Create_PDF()
+    Dim PDFTable As ListObject
+    Dim PDFSheets() As String
+    Dim c As Byte 'number of tabs to be exported
+    Dim FileName As String
+    On Error GoTo Handle:
+    
+    FileName = ThisWorkbook.Path & "\PDFExport"
+    Set PDFTable = Worksheets("PDF").ListObjects("PDFTable")
+    ReDim PDFSheets(1 To PDFTable.DataBodyRange.Rows.Count)
+    'fill up the array
+    For c = 1 To UBound(PDFSheets)
+        PDFSheets(c) = PDFTable.DataBodyRange(c, 1).Value
+    Next c
+    Worksheets(PDFSheets).Select
+    ActiveSheet.ExportAsFixedFormat xlTypePDF, FileName
+    Worksheets("PDF").Select
+    MsgBox "PDF file was created." & vbNewLine & "File is called PDFExport. It is saved on the same directory as this workbook.", , "Well Done"
+    Exit Sub
+    
+Handle:
+If Err.Number = 9 Then
+    MsgBox "It looks like a tab name was not spelled correctly. Please double check."
+Else
+    MsgBox "Looks like an Error here..."
+    
+End If
+End Sub
+
+
+
+Sub Email_Worksheet()
+    ' this macro shows you how to use Excel's Dialogs to send an email. For more control over Outlook, you need to activate the Outlook reference library
+    'We see this in the invoicing project - where we save specific sheets as PDF and email it to certain person.
+    Dim ShName As String
+    Dim cell As Range
+    Application.ScreenUpdating = False
+    
+     'update the range or make it dynamic as you see fit
+    For Each cell In Worksheets("Email").Range("A10:A11")
+        ShName = cell.Value
+        ThisWorkbook.Worksheets(ShName).Copy
+        
+        Application.Dialogs(xlDialogSendMail).Show cell.Offset(0, 1).Value, cell.Offset(0, 2).Value
+        ActiveWorkbook.Close False
+    Next cell
+    
+    Application.ScreenUpdating = True
+End Sub
+
+Sub Input_Sales_Word()
+    Dim WordApp As Word.Application
+    Dim WordDoc As Word.Document
+    Dim r As Long
+    Dim FileName As String
+    
+    On Error Resume Next
+    Set WordApp = GetObject(, "Word.Application")
+    On Error GoTo errorhandle:
+    If WordApp Is Nothing Then
+        Set WordApp = New Word.Application
+    End If
+    WordApp.Visible = True
+    
+    
+    FileName = ThisWorkbook.Path & "\Letter_"
+    'starting row
+    r = 10
+    'use a Do Loop
+    Do Until IsEmpty(Cells(r, 1))
+        Set WordDoc = WordApp.Documents.Open(ThisWorkbook.Path & "\Letter_Word.docx")
+        WordDoc.Bookmarks("PersonName").Range.InsertAfter Cells(r, 1).Text
+        WordDoc.Bookmarks("SalesValue").Range.InsertAfter Cells(r, 2).Text
+        WordDoc.SaveAs2 FileName & Cells(r, 1).Text
+        WordDoc.Close
+        
+        r = r + 1
+    Loop
+    Set WordApp = Nothing
+    
+    MsgBox "Personalized letters have been created." & vbNewLine & _
+    "They are saved in the same folder as this Workbook.", vbInformation, "Job Done"
+    Exit Sub
+
+errorhandle:
+MsgBox "An error has occurred. One reason can be that the Word Document, Letter_Word is not save in the same directory as this Workbook." & vbNewLine & _
+"Please update and run the macro again.", vbInformation, "Missing File?"
+
+End Sub
+
+
+Sub Create_PowerPoint_Slides()
+    Dim PApp As PowerPoint.Application
+    Dim PPres As PowerPoint.Presentation
+    Dim PSlide As PowerPoint.Slide
+    Dim PShape As PowerPoint.Shape
+    Dim PLayout As PowerPoint.CustomLayout
+    Dim toCopy As Range
+    Dim Sh As Worksheet
+    Dim i As Long 'slide counter
+    
+    Application.ScreenUpdating = False
+    On Error Resume Next
+    Set PApp = GetObject(, "Powerpoint.Application")
+    On Error GoTo 0
+    'open a new powerpoint session if not open
+    If PApp Is Nothing Then
+        Set PApp = New PowerPoint.Application
+    End If
+    ' get presentation
+    If PApp.Presentations.Count = 0 Then
+        Set PPres = PApp.Presentations.Add
+        i = 0
+    Else
+        Set PPres = PApp.ActivePresentation
+        i = PPres.Slides.Count
+    End If
+    Set PLayout = PPres.SlideMaster.CustomLayouts(7)
+    
+    For Each Sh In ThisWorkbook.Worksheets
+        If Sh.Index > 7 Then
+            Set toCopy = Sh.UsedRange
+            Set PSlide = PPres.Slides.AddSlide(i + 1, PLayout)
+            DoEvents
+            toCopy.CopyPicture xlScreen, xlPicture
+            PSlide.Shapes.Paste
+            DoEvents
+            Set PShape = PSlide.Shapes(1)
+            With PShape
+                .LockAspectRatio = msoTrue
+                .Left = 40
+                .Top = 40
+                .Width = 850
+            End With
+            i = i + 1
+        End If
+    Next Sh
+    MsgBox "Your Slides have been created."
+   ' PApp.Visible = True
+     Application.ScreenUpdating = True
+    Set PApp = Nothing
+End Sub
+
+
+Sub Bonus_Copy_to_Word()
+
+    Dim WordApp As Word.Application
+    Dim WordDoc As Word.Document
+    
+    Dim toCopy As Range
+    On Error Resume Next
+    Set WordApp = GetObject(, "Word.Application")
+    On Error GoTo 0
+    If WordApp Is Nothing Then
+        Set WordApp = New Word.Application
+    End If
+    Set WordDoc = WordApp.Documents.Add
+    Set toCopy = Application.InputBox("Please select the range", "select range to copy to word", , , , , , 8)
+    toCopy.Copy
+    WordApp.Selection.Paste
+    WordApp.Visible = True
+    
+    Application.CutCopyMode = False
+    Set WordApp = Nothing
+    
+End Sub
