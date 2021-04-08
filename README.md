@@ -15,3 +15,4 @@ This Repository is the solution to the course in Udemy: Unlock Excel VBA and Mac
 | 29.03.2021  | Working with files and Folders | Loop inside a folder, print, export, write
 | 04.04.2021  | Formulas and Pivot tables | Formulas in VBA, Pivot tables in VBA
 | 06.04.2021  | Regional Sales Report Tool | Importing, Setting up and Exporting the report
+| 07.04.2021  | Interacting with other applications | Word, PowerPoint, PDF and Outlook
